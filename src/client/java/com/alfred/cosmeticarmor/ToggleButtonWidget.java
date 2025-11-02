@@ -10,17 +10,6 @@ public class ToggleButtonWidget extends TexturedButtonWidget {
     private final Identifier textureOn;
     private boolean toggled;
 
-    /**
-     * Creates a toggleable image button.
-     *
-     * @param x            X position
-     * @param y            Y position
-     * @param width        Button width
-     * @param height       Button height
-     * @param textureOff   Texture shown when toggled = false
-     * @param textureOn    Texture shown when toggled = true
-     * @param pressAction  Action when clicked
-     */
     public ToggleButtonWidget(int x, int y, int width, int height,
                              Identifier textureOff, Identifier textureOn,
                              PressAction pressAction) {

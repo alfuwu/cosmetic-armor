@@ -1,13 +1,12 @@
 package com.alfred.cosmeticarmor.mixin.client;
 
 import com.alfred.cosmeticarmor.CosmeticArmor;
-import com.alfred.cosmeticarmor.SyncCosmeticsS2CPayload;
 import com.alfred.cosmeticarmor.ToggleButtonWidget;
 import com.alfred.cosmeticarmor.ToggleVisibilityC2SPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.PlayerScreenHandler;
@@ -18,6 +17,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHandler> {
@@ -32,6 +34,11 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
 
     @Unique
     private PlayerEntity player;
+
+    @Unique
+    private ToggleButtonWidget toggleButton;
+    @Unique
+    private final List<ToggleButtonWidget> visibilityToggles = new ArrayList<>();
 
     public InventoryScreenMixin(PlayerScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -48,7 +55,7 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
         int y = this.y + 70;
 
         // 8x7 pixel image button
-        ToggleButtonWidget toggleButton = new ToggleButtonWidget(
+        toggleButton = new ToggleButtonWidget(
                 x, y,
                 8, 7,
                 FOCUSED,
@@ -56,7 +63,6 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                 button -> {
                     handler.toggleEditingMode();
                     ((ToggleButtonWidget) button).setToggled(handler.isEditingCosmetics());
-                    CosmeticArmor.LOGGER.info("Toggled cosmetic editing: {}", handler.isEditingCosmetics());
                 }
         );
         toggleButton.setToggled(handler.isEditingCosmetics());
@@ -80,9 +86,18 @@ public abstract class InventoryScreenMixin extends HandledScreen<PlayerScreenHan
                     }
             );
             visible.setToggled(!player.getCosmeticArmor().isVisible(i));
+            visibilityToggles.add(visible);
 
             this.addDrawableChild(visible);
             y += 18;
         }
+    }
+
+    @Inject(method = "method_19891", at = @At("RETURN"))
+    private void toggleRecipeBook(ButtonWidget button, CallbackInfo ci) {
+        toggleButton.setPosition(this.x + 66, this.y + 70);
+
+        for (int i = 0; i < visibilityToggles.size(); i++)
+            visibilityToggles.get(i).setPosition(this.x + 24, this.y + 6 + 18 * i);
     }
 }
