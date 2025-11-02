@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.alfred.cosmeticarmor.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ArmorSlotMixin",
+    "PlayerEntityMixin",
+    "PlayerScreenHandlerMixin",
+    "ServerPlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

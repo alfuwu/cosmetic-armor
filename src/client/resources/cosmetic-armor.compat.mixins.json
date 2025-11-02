@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "package": "com.alfred.cosmeticarmor.mixin.client.compat",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ArmorModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
