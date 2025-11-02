@@ -21,6 +21,7 @@
 	},
 	"mixins": [
 		"cosmetic-armor.mixins.json",
+		"cosmetic-armor.failable.mixins.json",
 		{
 			"config": "cosmetic-armor.client.mixins.json",
 			"environment": "client"

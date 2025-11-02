@@ -64,6 +64,7 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
             int k = slot.getIndex();
             int l = k / 2;
             int m = k % 2;
+            args.set(1, k);
             args.set(2, 54 + l * 54);
             args.set(3, 6 + m * 27);
         }
