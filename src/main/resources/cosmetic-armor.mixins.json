@@ -6,7 +6,7 @@
     "ArmorSlotMixin",
     "PlayerEntityMixin",
     "PlayerScreenHandlerMixin",
-    "ServerPlayerEntityMixin"
+    "SlotAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

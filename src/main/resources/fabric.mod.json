@@ -1,47 +1,38 @@
 {
-	"schemaVersion": 1,
-	"id": "cosmetic-armor",
-	"version": "${version}",
-	"name": "Cosmetic Armor",
-	"description": "allows you to wear cosmetic armor (no library required)",
-	"authors": [
-		"alfred"
-	],
-	"contact": {},
-	"license": "MIT",
-	"icon": "assets/cosmetic-armor/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.alfred.cosmeticarmor.CosmeticArmor"
-		],
-		"client": [
-			"com.alfred.cosmeticarmor.CosmeticArmorClient"
-		]
-	},
-	"mixins": [
-		"cosmetic-armor.mixins.json",
-		"cosmetic-armor.failable.mixins.json",
-		{
-			"config": "cosmetic-armor.client.mixins.json",
-			"environment": "client"
-		},
-		{
-			"config": "cosmetic-armor.compat.mixins.json",
-			"environment": "client"
-		}
-	],
-	"custom": {
-		"loom:injected_interfaces": {
-			"net/minecraft/class_1657": [ "com/alfred/cosmeticarmor/interfaces/CosmeticalEntity" ],
-			"net/minecraft/class_1723": [ "com/alfred/cosmeticarmor/interfaces/CosmeticEditableHandler" ],
-			"net/minecraft/class_9692": [ "com/alfred/cosmeticarmor/interfaces/CosmeticEditableHandler" ]
-		}
-	},
-	"depends": {
-		"fabricloader": ">=0.17.3",
-		"minecraft": "~1.21.1",
-		"java": ">=21",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "cosmetic-armor",
+  "version": "${version}",
+
+  "name": "Cosmetic Armor",
+  "description": "allows you to wear cosmetic armor (real)",
+  "authors": [
+    "alfred"
+  ],
+  "contact": {
+    "sources": "https://github.com/alfuwu/cosmetic-armor"
+  },
+
+  "license": "MIT",
+  "icon": "assets/cosmetic-armor/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "stationapi:event_bus": [
+      "com.alfred.cosmeticarmor.events.init.InitListener"
+    ],
+    "stationapi:event_bus_client": [
+    ],
+    "stationapi:event_bus_server": [
+    ]
+  },
+  "mixins": [
+    "cosmetic-armor.mixins.json",
+    {
+      "config": "cosmetic-armor.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "minecraft": "1.0.0-beta.7.3"
+  }
 }

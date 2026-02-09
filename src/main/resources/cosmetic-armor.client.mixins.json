@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "com.alfred.cosmeticarmor.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "HandledScreenMixin",
+    "InventoryScreenMixin",
+    "MinecraftAccessor",
+    "PlayerEntityRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

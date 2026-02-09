@@ -1,36 +1,43 @@
 package com.alfred.cosmeticarmor;
 
 import com.alfred.cosmeticarmor.interfaces.CosmeticEditableHandler;
-import com.mojang.datafixers.util.Pair;
+import com.alfred.cosmeticarmor.mixin.SlotAccessor;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 public class CosmeticArmorSlot extends Slot {
     private final CosmeticEditableHandler handler;
-    private final Identifier identifier;
 
-    public CosmeticArmorSlot(CosmeticEditableHandler handler, Inventory inventory, int index, int x, int y, @Nullable Identifier identifier) {
+    public CosmeticArmorSlot(CosmeticEditableHandler handler, Inventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);
         this.handler = handler;
-        this.identifier = identifier;
     }
 
     @Override
     public boolean canInsert(ItemStack stack) {
-        return inventory.isValid(getIndex(), stack);
+        return handler.isEditingCosmetics() && stack.getItem() instanceof ArmorItem armor && armor.equipmentSlot == ((SlotAccessor)this).getIndex();
     }
 
     @Override
-    public boolean isEnabled() {
-        return handler.isEditingCosmetics();
+    public ItemStack takeStack(int amount) {
+        if (handler.isEditingCosmetics())
+            return super.takeStack(amount);
+        return null;
     }
 
     @Override
-    public Pair<Identifier, Identifier> getBackgroundSprite() {
-        return inventory != null && identifier != null ? Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, identifier) : super.getBackgroundSprite();
+    public ItemStack getStack() {
+        if (handler.isEditingCosmetics())
+            return super.getStack();
+        return null;
+    }
+
+    @Override
+    public boolean hasStack() {
+        return handler.isEditingCosmetics() && super.hasStack();
     }
 }

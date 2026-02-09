@@ -1,57 +1,60 @@
 package com.alfred.cosmeticarmor;
 
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.EquipmentSlot;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.*;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.nbt.NbtByteArray;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.world.ServerWorld;
+import net.modificationstation.stationapi.api.network.packet.PacketHelper;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
-public class CosmeticArmorInventory extends SimpleInventory {
+public class CosmeticArmorInventory implements Inventory {
     private final PlayerEntity owner;
+    private final ItemStack[] armor;
 
-    private boolean[] visibilities = new boolean[] { true, true, true, true };
+    public boolean[] visibilities = new boolean[] { true, true, true, true };
 
     public CosmeticArmorInventory(PlayerEntity owner) {
-        super(4); // 4 slots: helmet, chest, legs, boots
         this.owner = owner;
+        this.armor = new ItemStack[4]; // 4 slots: helmet, chest, legs, boots
     }
 
-    @Override
-    public boolean isValid(int slot, ItemStack stack) {
-        return switch (slot) {
-            case 0 -> owner.getPreferredEquipmentSlot(stack) == EquipmentSlot.HEAD;
-            case 1 -> owner.getPreferredEquipmentSlot(stack) == EquipmentSlot.CHEST;
-            case 2 -> owner.getPreferredEquipmentSlot(stack) == EquipmentSlot.LEGS;
-            case 3 -> owner.getPreferredEquipmentSlot(stack) == EquipmentSlot.FEET;
-            default -> false;
-        };
-    }
-
-    @Override
-    public NbtList toNbtList(RegistryWrapper.WrapperLookup registries) {
+    public NbtList toNbtList() {
         NbtList nbtList = new NbtList();
 
-        for (int i = 0; i < size(); ++i) {
+        for (int i = 0; i < size(); i++) {
             ItemStack itemStack = getStack(i);
-            nbtList.add(itemStack.encodeAllowEmpty(registries));
+            NbtCompound pound;
+            if (itemStack == null) {
+                pound = new NbtCompound();
+                pound.putShort("id", (short)-1);
+            } else {
+                pound = itemStack.writeNbt(new NbtCompound());
+            }
+            nbtList.add(pound);
         }
 
         return nbtList;
     }
 
-    @Override
-    public void readNbtList(NbtList list, RegistryWrapper.WrapperLookup registries) {
-        clear();
+    public void readNbtList(NbtList list) {
+        Arrays.fill(armor, null);
 
-        for (int i = 0; i < list.size(); ++i)
-            setStack(i, ItemStack.fromNbtOrEmpty(registries, list.getCompound(i)));
+        for (int i = 0; i < list.size(); i++) {
+            NbtCompound pound = (NbtCompound)list.get(i);
+            if (!pound.contains("id") && !pound.contains("stationapi:id") || pound.contains("id") && pound.getShort("id") < 0)
+                setStack(i, null);
+            else
+                setStack(i, new ItemStack(pound));
+        }
     }
 
     public NbtByteArray visibilitiesToNbt() {
@@ -74,56 +77,52 @@ public class CosmeticArmorInventory extends SimpleInventory {
     }
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
-        super.setStack(slot, stack);
-        if (!owner.getEntityWorld().isClient())
-            syncToTrackingAndSelf((ServerPlayerEntity) owner);
+    public ItemStack getStack(int slot) {
+        return this.armor[slot];
     }
 
-    public void setStack(EquipmentSlot slot, ItemStack stack) {
-        switch (slot) {
-            case HEAD -> setStack(0, stack);
-            case CHEST -> setStack(1, stack);
-            case LEGS -> setStack(2, stack);
-            case FEET -> setStack(3, stack);
-            default -> throw new IllegalArgumentException("there is no cosmetic slot for " + slot);
+    @Override
+    public ItemStack removeStack(int slot, int amount) {
+        if (this.armor[slot] != null) {
+            if (this.armor[slot].count <= amount) {
+                ItemStack var4 = this.armor[slot];
+                this.armor[slot] = null;
+                this.markDirty();
+                return var4;
+            } else {
+                ItemStack var3 = this.armor[slot].split(amount);
+                if (this.armor[slot].count == 0)
+                    this.armor[slot] = null;
+
+                this.markDirty();
+                return var3;
+            }
+        } else {
+            return null;
         }
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+        this.armor[slot] = stack;
+        if (stack != null && stack.count > this.getMaxCountPerStack())
+            stack.count = this.getMaxCountPerStack();
+
+        this.markDirty();
+    }
+
+    @Environment(EnvType.SERVER)
+    private void syncServer() {
+        if (owner.world instanceof ServerWorld)
+            syncToTrackingAndSelf((ServerPlayerEntity)owner);
     }
 
     public void setVisible(int i, boolean visible) {
         visibilities[i] = visible;
     }
 
-    public void setVisible(EquipmentSlot slot, boolean visible) {
-        switch (slot) {
-            case HEAD -> setVisible(0, visible);
-            case CHEST -> setVisible(1, visible);
-            case LEGS -> setVisible(2, visible);
-            case FEET -> setVisible(3, visible);
-            default -> throw new IllegalArgumentException("there is no cosmetic slot for " + slot);
-        }
-    }
-
     public boolean isVisible(int i) {
         return visibilities[i];
-    }
-
-    public boolean isVisible(EquipmentSlot slot) {
-        return switch (slot) {
-            case HEAD -> isVisible(0);
-            case CHEST -> isVisible(1);
-            case LEGS -> isVisible(2);
-            case FEET -> isVisible(3);
-            default -> throw new IllegalArgumentException("there is no cosmetic slot for " + slot);
-        };
-    }
-
-    public void setVisibilities(boolean[] visibilities) {
-        this.visibilities = visibilities;
-    }
-
-    public boolean[] getVisibilities() {
-        return visibilities;
     }
 
     public ItemStack[] zip() {
@@ -138,30 +137,28 @@ public class CosmeticArmorInventory extends SimpleInventory {
             setStack(i, arr[i]);
     }
 
+    @Environment(EnvType.SERVER)
     public void syncToTrackingAndSelf(ServerPlayerEntity serverOwner) {
         if (serverOwner.networkHandler == null)
             return;
 
         // build packet
-        SyncCosmeticsS2CPayload payload = new SyncCosmeticsS2CPayload(serverOwner.getId(), zip(), visibilities);
+        SyncCosmeticsS2CPacket payload = new SyncCosmeticsS2CPacket(serverOwner.id, zip(), visibilities);
 
-        // send to all players tracking this entity
-        Collection<ServerPlayerEntity> tracking = PlayerLookup.tracking(serverOwner);
-        for (ServerPlayerEntity player : tracking)
-            ServerPlayNetworking.send(player, payload);
-
-        if (!tracking.contains(serverOwner))
-            ServerPlayNetworking.send(serverOwner, payload);
+        for (ServerPlayerEntity player : (List<ServerPlayerEntity>)serverOwner.server.playerManager.players)
+            if (player.networkHandler != null)
+                player.networkHandler.sendPacket(payload);
     }
 
-    public ItemStack getStack(EquipmentSlot slot) {
-        return switch (slot) {
-            case HEAD -> getStack(0);
-            case CHEST -> getStack(1);
-            case LEGS -> getStack(2);
-            case FEET -> getStack(3);
-            default -> throw new IllegalArgumentException("there is no cosmetic slot for " + slot);
-        };
+    @Environment(EnvType.SERVER)
+    public void sync(ServerPlayerEntity serverOwner, ServerPlayerEntity player) {
+        if (player.networkHandler == null)
+            return;
+
+        // build packet
+        SyncCosmeticsS2CPacket payload = new SyncCosmeticsS2CPacket(serverOwner.id, zip(), visibilities);
+
+        player.networkHandler.sendPacket(payload);
     }
 
     public void copyFrom(CosmeticArmorInventory inventory) {
@@ -169,15 +166,41 @@ public class CosmeticArmorInventory extends SimpleInventory {
             setStack(i, inventory.getStack(i).copy());
     }
 
-    public void readFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+    public void readFromNbt(NbtCompound nbt) {
         if (nbt.contains("CosmeticArmor"))
-            readNbtList(nbt.getList("CosmeticArmor", NbtElement.COMPOUND_TYPE), lookup);
+            readNbtList(nbt.getList("CosmeticArmor"));
         if (nbt.contains("ArmorVisibility"))
             readVisibilities(nbt.getByteArray("ArmorVisibility"));
     }
 
-    public void writeToNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-        nbt.put("CosmeticArmor", toNbtList(lookup));
+    public void writeToNbt(NbtCompound nbt) {
+        nbt.put("CosmeticArmor", toNbtList());
         nbt.put("ArmorVisibility", visibilitiesToNbt());
+    }
+
+    @Override
+    public int getMaxCountPerStack() {
+        return 64;
+    }
+
+    @Override
+    public void markDirty() {
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER)
+            syncServer();
+    }
+
+    @Override
+    public boolean canPlayerUse(PlayerEntity player) {
+        return true;
+    }
+
+    @Override
+    public int size() {
+        return 4;
+    }
+
+    @Override
+    public String getName() {
+        return "cosmetic-armor";
     }
 }
