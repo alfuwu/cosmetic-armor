@@ -7,8 +7,8 @@ plugins {
 }
 
 //noinspection GroovyUnusedAssignment
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_17
+java.targetCompatibility = JavaVersion.VERSION_17
 
 base.archivesName = project.properties["archives_base_name"] as String
 version = project.properties["mod_version"] as String

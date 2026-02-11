@@ -1,5 +1,6 @@
 package com.alfred.cosmeticarmor;
 
+import com.alfred.cosmeticarmor.events.init.InitListener;
 import net.danygames2014.modmenu.util.DrawingUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -51,6 +52,9 @@ public class ToggleButtonWidget extends DrawContext {
     }
 
     public boolean isMouseOver(int mouseX, int mouseY) {
+        if (width == 8) {
+            InitListener.LOGGER.info("Mouse: ({}, {})\nRect: ({}, {}), ({}x{})", mouseX, mouseY, this.x, this.y, this.width, this.height);
+        }
         return mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
     }
 }

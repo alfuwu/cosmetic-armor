@@ -41,8 +41,10 @@ public abstract class InventoryScreenMixin extends HandledScreenMixin {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void addToggleButton(CallbackInfo ci) {
-        int x = 69; // nice
-        int y = 70;
+        int posX = (this.width - this.backgroundWidth) / 2;
+        int posY = (this.height - this.backgroundHeight) / 2;
+        int x = posX + 69; // nice
+        int y = posY + 70;
 
         // 8x7 pixel image button
         toggleButton = new ToggleButtonWidget(
@@ -57,8 +59,10 @@ public abstract class InventoryScreenMixin extends HandledScreenMixin {
         );
         toggleButton.toggled = ((CosmeticEditableHandler)handler).isEditingCosmetics();
 
-        x = 24;
-        y = 6;
+        visibilityToggles.clear();
+
+        x = posX + 24;
+        y = posY + 6;
         for (byte i = 0; i < 4; i++) {
             byte finalI = i;
             CosmeticArmorInventory inv = ((CosmeticalEntity)player).getCosmeticArmor();
@@ -81,8 +85,8 @@ public abstract class InventoryScreenMixin extends HandledScreenMixin {
         }
     }
 
-    @Inject(method = "drawForeground", at = @At("RETURN"))
-    private void drawWidgets(CallbackInfo ci) {
+    @Inject(method = "drawBackground", at = @At("RETURN"))
+    private void drawWidgets(float tickDelta, CallbackInfo ci) {
         toggleButton.render(MinecraftAccessor.getInstance());
         for (ToggleButtonWidget b : visibilityToggles)
             b.render(MinecraftAccessor.getInstance());
@@ -90,17 +94,15 @@ public abstract class InventoryScreenMixin extends HandledScreenMixin {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
-        int x = mouseX - (this.width - this.backgroundWidth) / 2;
-        int y = mouseY - (this.height - this.backgroundHeight) / 2;
-        boolean toggle = toggleButton.isMouseOver(x, y);
-        if (toggle || visibilityToggles.stream().anyMatch(v -> v.isMouseOver(x, y))) {
+        boolean toggle = toggleButton.isMouseOver(mouseX, mouseY);
+        if (toggle || visibilityToggles.stream().anyMatch(v -> v.isMouseOver(mouseX, mouseY))) {
             // holy nesting
             if (button == 0)
                 if (toggle)
                     toggleButton.click();
                 else
                     for (ToggleButtonWidget b : visibilityToggles)
-                        if (b.isMouseOver(x, y))
+                        if (b.isMouseOver(mouseX, mouseY))
                             b.click();
         } else {
             super.mouseClicked(mouseX, mouseY, button);
