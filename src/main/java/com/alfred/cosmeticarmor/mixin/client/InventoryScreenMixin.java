@@ -93,7 +93,7 @@ public abstract class InventoryScreenMixin extends HandledScreenMixin {
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int button) {
+    protected void mouseClicked(int mouseX, int mouseY, int button, CallbackInfo ci) {
         boolean toggle = toggleButton.isMouseOver(mouseX, mouseY);
         if (toggle || visibilityToggles.stream().anyMatch(v -> v.isMouseOver(mouseX, mouseY))) {
             // holy nesting
@@ -104,8 +104,7 @@ public abstract class InventoryScreenMixin extends HandledScreenMixin {
                     for (ToggleButtonWidget b : visibilityToggles)
                         if (b.isMouseOver(mouseX, mouseY))
                             b.click();
-        } else {
-            super.mouseClicked(mouseX, mouseY, button);
+            ci.cancel();
         }
     }
 
