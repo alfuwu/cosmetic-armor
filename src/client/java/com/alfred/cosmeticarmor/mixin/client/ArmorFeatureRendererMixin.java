@@ -1,10 +1,7 @@
 package com.alfred.cosmeticarmor.mixin.client;
 
-import com.alfred.cosmeticarmor.CosmeticArmor;
 import com.alfred.cosmeticarmor.CosmeticArmorInventory;
 import com.alfred.cosmeticarmor.interfaces.CosmeticalEntity;
-import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
 import net.minecraft.client.render.VertexConsumerProvider;

@@ -135,10 +135,14 @@ public class CosmeticArmorInventory extends SimpleInventory {
 
     public void unzip(ItemStack[] arr) {
         for (int i = 0; i < arr.length; i++)
-            setStack(i, arr[i]);
+            super.setStack(i, arr[i]);
     }
 
     public void syncToTrackingAndSelf(ServerPlayerEntity serverOwner) {
+        //StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        //for (StackTraceElement element : stackTrace)
+        //    System.out.println(element.toString());
+
         if (serverOwner.networkHandler == null)
             return;
 
@@ -166,7 +170,10 @@ public class CosmeticArmorInventory extends SimpleInventory {
 
     public void copyFrom(CosmeticArmorInventory inventory) {
         for (int i = 0; i < size(); i++)
-            setStack(i, inventory.getStack(i).copy());
+            super.setStack(i, inventory.getStack(i));
+        this.visibilities = inventory.visibilities;
+        if (!owner.getEntityWorld().isClient())
+            syncToTrackingAndSelf((ServerPlayerEntity) owner);
     }
 
     public void readFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {

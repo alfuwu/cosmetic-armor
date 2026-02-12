@@ -1,15 +1,13 @@
 package com.alfred.cosmeticarmor;
 
-import com.alfred.cosmeticarmor.interfaces.CosmeticalEntity;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +21,10 @@ public class CosmeticArmor implements ModInitializer {
 			CosmeticArmorInventory oldInv = oldPlayer.getCosmeticArmor();
 			CosmeticArmorInventory newInv = newPlayer.getCosmeticArmor();
 			newInv.copyFrom(oldInv);
+		});
+
+		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, oldWorld, newWorld) -> {
+			player.getCosmeticArmor().syncToTrackingAndSelf(player);
 		});
 
 		ServerPlayerEvents.JOIN.register(joining -> {
