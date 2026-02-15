@@ -1,36 +1,49 @@
 package com.alfred.cosmeticarmor;
 
 import com.alfred.cosmeticarmor.interfaces.CosmeticEditableHandler;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.item.ItemArmor;
+import net.minecraft.core.item.ItemStack;
+import net.minecraft.core.player.inventory.container.Container;
+import net.minecraft.core.player.inventory.slot.Slot;
+import net.minecraft.core.player.inventory.slot.SlotArmor;
 import org.jetbrains.annotations.Nullable;
 
 public class CosmeticArmorSlot extends Slot {
     private final CosmeticEditableHandler handler;
-    private final Identifier identifier;
+	private final int trueIndex;
 
-    public CosmeticArmorSlot(CosmeticEditableHandler handler, Inventory inventory, int index, int x, int y, @Nullable Identifier identifier) {
+    public CosmeticArmorSlot(CosmeticEditableHandler handler, Container inventory, int index, int x, int y, int armorIndex) {
         super(inventory, index, x, y);
         this.handler = handler;
-        this.identifier = identifier;
+		this.trueIndex = armorIndex;
     }
 
     @Override
-    public boolean canInsert(ItemStack stack) {
-        return inventory.isValid(getIndex(), stack);
+    public boolean mayPlace(ItemStack stack) {
+        return handler.isEditingCosmetics() && stack.getItem() instanceof ItemArmor armor && armor.getArmorPiece() == this.trueIndex;
     }
 
     @Override
-    public boolean isEnabled() {
-        return handler.isEditingCosmetics();
+    public ItemStack remove(int amount) {
+        if (handler.isEditingCosmetics())
+            return super.remove(amount);
+        return null;
     }
 
     @Override
-    public Pair<Identifier, Identifier> getBackgroundSprite() {
-        return inventory != null && identifier != null ? Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, identifier) : super.getBackgroundSprite();
+    public ItemStack getItemStack() {
+        if (handler.isEditingCosmetics())
+            return super.getItemStack();
+        return null;
     }
+
+    @Override
+    public boolean hasItem() {
+        return handler.isEditingCosmetics() && super.hasItem();
+    }
+
+	@Override
+	public @Nullable String getItemIcon() {
+		return handler.isEditingCosmetics() ? SlotArmor.armorOutlines[this.trueIndex] : null;
+	}
 }
