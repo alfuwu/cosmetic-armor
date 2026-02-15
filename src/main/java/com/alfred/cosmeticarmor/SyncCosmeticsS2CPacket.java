@@ -48,7 +48,7 @@ public class SyncCosmeticsS2CPacket extends Packet implements ManagedPacket<Sync
     @Override
     public void read(DataInputStream stream) {
         try {
-            entityId = stream.read();
+            entityId = stream.readInt();
             byte num = stream.readByte();
             stacks = new ItemStack[num];
             visibilities = new boolean[num];
@@ -70,16 +70,16 @@ public class SyncCosmeticsS2CPacket extends Packet implements ManagedPacket<Sync
     @Override
     public void write(DataOutputStream stream) {
         try {
-            stream.write(entityId);
-            stream.write((byte)stacks.length);
+            stream.writeInt(entityId);
+            stream.writeByte(stacks.length);
             for (int i = 0; i < stacks.length; i++) {
                 ItemStack stack = stacks[i];
                 if (stack == null) {
                     stream.writeShort(-1);
                 } else {
-                    stream.writeShort((short)stack.itemId);
-                    stream.writeByte((byte)stack.count);
-                    stream.writeShort((short)stack.getDamage());
+                    stream.writeShort(stack.itemId);
+                    stream.writeByte(stack.count);
+                    stream.writeShort(stack.getDamage());
                 }
                 stream.writeBoolean(i < visibilities.length && visibilities[i]);
             }

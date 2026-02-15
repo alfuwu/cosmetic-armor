@@ -1,11 +1,10 @@
 package com.alfred.cosmeticarmor;
 
-import com.alfred.cosmeticarmor.events.init.InitListener;
-import net.danygames2014.modmenu.util.DrawingUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.Tessellator;
 import net.modificationstation.stationapi.api.util.Identifier;
 import org.lwjgl.opengl.GL11;
 
@@ -48,7 +47,12 @@ public class ToggleButtonWidget extends DrawContext {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         Identifier texture = toggled ? textureOn : textureOff;
         minecraft.textureManager.bindTexture(minecraft.textureManager.getTextureId("/assets/" + texture.namespace + "/" + texture.path));
-        DrawingUtil.drawTexture(x, y, 0, 0, width, height, width, height);
+        Tessellator.INSTANCE.startQuads();
+        Tessellator.INSTANCE.vertex(x, y + height, 0.0, 0.0, 1.0);
+        Tessellator.INSTANCE.vertex(x + width, y + height, 0.0, 1.0, 1.0);
+        Tessellator.INSTANCE.vertex(x + width, y, 0.0, 1.0, 0.0);
+        Tessellator.INSTANCE.vertex(x, y, 0.0, 0.0, 0.0);
+        Tessellator.INSTANCE.draw();
     }
 
     public boolean isMouseOver(int mouseX, int mouseY) {
