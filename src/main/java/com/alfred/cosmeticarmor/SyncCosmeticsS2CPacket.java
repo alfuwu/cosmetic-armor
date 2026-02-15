@@ -112,7 +112,7 @@ public class SyncCosmeticsS2CPacket extends Packet implements ManagedPacket<Sync
     public int size() {
         int i = 5;
         for (ItemStack stack : stacks)
-            i += stack == null ? 2 : 5;
+            i += stack == null ? 3 : 6;
         return i;
     }
 }
