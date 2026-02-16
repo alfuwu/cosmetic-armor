@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PlayerList.class)
+@Mixin(value = PlayerList.class, remap = false)
 public abstract class PlayerListMixin {
 	@Shadow @Final private MinecraftServer server;
 

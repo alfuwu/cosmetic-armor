@@ -4,7 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.net.packet.PacketCustomPayload;
 
-public class ToggleVisibilityC2SPacket extends PacketCustomPayload {
+public abstract class ToggleVisibilityC2SPacket {
 	public static final String ID = "carm:tv";
 
     @Environment(EnvType.CLIENT)

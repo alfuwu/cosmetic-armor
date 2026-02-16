@@ -5,7 +5,7 @@ import net.minecraft.server.net.handler.PacketHandlerServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value = PacketHandlerServer.class,remap = false)
+@Mixin(value = PacketHandlerServer.class, remap = false)
 public interface PacketHandlerServerAccessor {
 	@Accessor("playerEntity")
 	PlayerServer getPlayer();
