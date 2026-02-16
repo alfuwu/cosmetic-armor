@@ -27,10 +27,10 @@ public abstract class InventoryScreenMixin extends HandledScreenMixin {
     @Unique private static final NamespaceID VISIBLE = NamespaceID.getPermanent(CosmeticArmor.MOD_ID, "textures/gui/visible.png");
     @Unique private static final NamespaceID INVISIBLE = NamespaceID.getPermanent(CosmeticArmor.MOD_ID, "textures/gui/invisible.png");
 
-    @Unique private Player player;
+    @Unique protected Player player;
 
-    @Unique private ToggleButtonWidget toggleButton;
-    @Unique private final List<ToggleButtonWidget> visibilityToggles = new ArrayList<>();
+    @Unique protected ToggleButtonWidget toggleButton;
+    @Unique protected final List<ToggleButtonWidget> visibilityToggles = new ArrayList<>();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void ctor(Player player, CallbackInfo ci) {

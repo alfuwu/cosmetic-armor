@@ -3,6 +3,7 @@
   "package": "com.alfred.cosmeticarmor.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "CreativeInventoryScreenMixin",
     "HandledScreenMixin",
     "InventoryScreenMixin",
     "PacketHandlerClientMixin",
