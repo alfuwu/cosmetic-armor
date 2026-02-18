@@ -1,6 +1,7 @@
 package com.alfred.cosmeticarmor;
 
 import com.alfred.cosmeticarmor.interfaces.CosmeticEditableHandler;
+import net.minecraft.core.item.IArmorItem;
 import net.minecraft.core.item.ItemArmor;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.player.inventory.container.Container;
@@ -20,7 +21,7 @@ public class CosmeticArmorSlot extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return handler.isEditingCosmetics() && stack.getItem() instanceof ItemArmor armor && armor.getArmorPiece() == this.trueIndex;
+        return handler.isEditingCosmetics() && stack.getItem() instanceof IArmorItem armor && armor.getArmorPiece() == this.trueIndex;
     }
 
     @Override

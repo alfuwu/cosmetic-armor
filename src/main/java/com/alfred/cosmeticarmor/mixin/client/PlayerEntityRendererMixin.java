@@ -7,6 +7,7 @@ import net.minecraft.client.render.entity.MobRendererPlayer;
 import net.minecraft.client.render.model.ModelBase;
 import net.minecraft.client.render.model.ModelBiped;
 import net.minecraft.core.entity.player.Player;
+import net.minecraft.core.item.IArmorItem;
 import net.minecraft.core.item.Item;
 import net.minecraft.core.item.ItemArmor;
 import net.minecraft.core.item.ItemStack;
@@ -39,7 +40,7 @@ public abstract class PlayerEntityRendererMixin extends MobRenderer<Player> {
         ItemStack stack = inv.getItem(i);
         if (stack != null) {
             Item item = stack.getItem();
-            if (item instanceof ItemArmor armorItem) {
+            if (item instanceof IArmorItem armorItem) {
 				if (armorItem.getArmorMaterial() != null) {
 					bindTexture(String.format("/assets/%s/textures/armor/%s_%d.png", armorItem.getArmorMaterial().identifier.namespace(), armorItem.getArmorMaterial().identifier.value(), i != 2 ? 1 : 2));
 					loadArmor(i);
